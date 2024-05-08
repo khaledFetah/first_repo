@@ -79,9 +79,17 @@ class _HomePageState extends State<HomePage> {
                           padding: EdgeInsets.symmetric(horizontal: 10),
                           child: Row(
                             children: [
-                              Icon(
-                                CupertinoIcons.search,
-                                color: Colors.red,
+                              GestureDetector(
+                                onTap: () {
+                                  print("search");
+                                },
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.red,
+                                  child: Icon(
+                                    CupertinoIcons.search,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
                               Container(
                                 height: 50,
@@ -168,17 +176,18 @@ class _HomePageState extends State<HomePage> {
                               onTap: () {
                                 //
                                 print("go to items page");
+                                print(products[index]['id']);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ItemsPage(
-                                      productId: products[index]['id'],
+                                      currentAddress: products[index],
                                     ),
                                   ),
                                 );
                               },
                               child: PopularItemWidget(
-                                ImageSrc: products[index]['image'],
+                                ImageSrc: products[index]['image'].toString(),
                                 descProd: products[index]['description'],
                                 nameProd: products[index]['name'],
                                 priceProd: products[index]['price'].toString(),
