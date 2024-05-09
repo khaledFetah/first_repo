@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_10/main.dart';
 import 'package:flutter_application_10/pages/categories_product.dart';
 import 'package:flutter_application_10/pages/items_page.dart';
+import 'package:flutter_application_10/pages/search_page.dart';
 import 'package:flutter_application_10/widgets/app_bar_widget.dart';
 import 'package:flutter_application_10/widgets/categories_widget.dart';
 import 'package:flutter_application_10/widgets/my_drawer_widget.dart';
@@ -29,6 +30,8 @@ class _HomePageState extends State<HomePage> {
 // bool
   bool isLoading = false;
 // insital state
+  TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -79,9 +82,18 @@ class _HomePageState extends State<HomePage> {
                           padding: EdgeInsets.symmetric(horizontal: 10),
                           child: Row(
                             children: [
+                              // search
                               GestureDetector(
                                 onTap: () {
                                   print("search");
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => SearchPage(
+                                              searchResults:
+                                                  _searchController.text,
+                                            )),
+                                  );
                                 },
                                 child: CircleAvatar(
                                   backgroundColor: Colors.red,
@@ -97,6 +109,7 @@ class _HomePageState extends State<HomePage> {
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 15),
                                   child: TextFormField(
+                                    controller: _searchController,
                                     decoration: InputDecoration(
                                         hintText:
                                             'What Would you like to have ?',
@@ -164,6 +177,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     // Popular items widget
+                    // Popular items widget
                     SizedBox(
                       height: 280,
                       child: ListView.builder(
@@ -174,9 +188,6 @@ class _HomePageState extends State<HomePage> {
                           return Container(
                             child: GestureDetector(
                               onTap: () {
-                                //
-                                print("go to items page");
-                                print(products[index]['id']);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -187,7 +198,32 @@ class _HomePageState extends State<HomePage> {
                                 );
                               },
                               child: PopularItemWidget(
-                                ImageSrc: products[index]['image'].toString(),
+                                ImageSrc: Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: products[index]['image'] != null
+                                      ? Image.network(
+                                          "${products[index]['image']}",
+                                          fit: BoxFit.cover,
+                                          width: 100,
+                                          height: 100,
+                                          errorBuilder: (BuildContext context,
+                                              Object exception,
+                                              StackTrace? stackTrace) {
+                                            return Icon(
+                                              Icons.error,
+                                              size: 100,
+                                              color: Colors
+                                                  .red, // لون الأيقونة في حالة فشل عملية التحميل
+                                            );
+                                          },
+                                        )
+                                      : Icon(
+                                          Icons.image,
+                                          size: 200,
+                                          color: Colors
+                                              .grey, // لون الأيقونة في حالة عدم وجود عنوان URL
+                                        ),
+                                ),
                                 descProd: products[index]['description'],
                                 nameProd: products[index]['name'],
                                 priceProd: products[index]['price'].toString(),

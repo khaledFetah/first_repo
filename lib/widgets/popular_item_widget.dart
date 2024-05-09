@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class PopularItemWidget extends StatelessWidget {
-  String? ImageSrc;
+  Widget? ImageSrc;
   String? nameProd;
   String? descProd;
   String? priceProd;
@@ -48,15 +48,12 @@ class PopularItemWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                          padding: EdgeInsets.zero,
-                          alignment: Alignment.center,
-                          child: Image.network(
-                            "${ImageSrc}",
-                            fit: BoxFit.fill,
-                            width: double.infinity,
-                            height: MediaQuery.of(context).size.height * 0.12,
-                          )),
+                      Expanded(
+                        child: Container(
+                            padding: EdgeInsets.zero,
+                            alignment: Alignment.center,
+                            child: ImageSrc),
+                      ),
                       SizedBox(
                         height: 14,
                       ),

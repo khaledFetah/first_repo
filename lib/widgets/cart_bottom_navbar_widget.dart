@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class CartBottomNavBarWidget extends StatelessWidget {
-  const CartBottomNavBarWidget({super.key});
+  const CartBottomNavBarWidget({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

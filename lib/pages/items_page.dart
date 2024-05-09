@@ -5,12 +5,12 @@ import 'package:flutter_application_10/auth/constans.dart';
 import 'package:flutter_application_10/widgets/item_bootom_navbar.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class ItemsPage extends StatefulWidget {
   final Map<String, dynamic> currentAddress;
-
   const ItemsPage({required this.currentAddress});
 
   @override
@@ -18,6 +18,10 @@ class ItemsPage extends StatefulWidget {
 }
 
 class _ItemsPageState extends State<ItemsPage> {
+  Map<String, dynamic>? currentProduct;
+  List<Map<String, dynamic>> orderItems = [];
+  double totalPrice = 0.0;
+
   List<dynamic> products = [];
 
   bool isLoading = false;
@@ -26,6 +30,23 @@ class _ItemsPageState extends State<ItemsPage> {
   void initState() {
     super.initState();
     getTimeLine();
+  }
+
+  int itemCount = 1;
+// +
+  void increaseItemCount() {
+    setState(() {
+      itemCount++;
+    });
+  }
+
+// _
+  void decreaseItemCount() {
+    if (itemCount > 1) {
+      setState(() {
+        itemCount--;
+      });
+    }
   }
 
   @override
@@ -45,7 +66,9 @@ class _ItemsPageState extends State<ItemsPage> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    print("Welcome");
+                    setState(() {
+                      currentProduct = products[index];
+                    });
                   },
                   child: Padding(
                     padding: EdgeInsets.all(16),
@@ -145,24 +168,43 @@ class _ItemsPageState extends State<ItemsPage> {
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
-                                      Icon(
-                                        CupertinoIcons.minus,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                      Text(
-                                        "1",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                                      Expanded(
+                                        child: Container(
+                                          alignment: Alignment.centerLeft,
+                                          child: IconButton(
+                                            onPressed: decreaseItemCount,
+                                            icon: Icon(
+                                              CupertinoIcons.minus,
+                                              color: Colors.white,
+                                              size: 20,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                      Icon(
-                                        CupertinoIcons.plus,
-                                        color: Colors.white,
-                                        size: 20,
+                                      Expanded(
+                                        child: Text(
+                                          itemCount.toString(),
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      // inc
+                                      Expanded(
+                                        child: IconButton(
+                                          onPressed: increaseItemCount,
+                                          icon: Icon(
+                                            CupertinoIcons.plus,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -261,7 +303,12 @@ class _ItemsPageState extends State<ItemsPage> {
           );
         },
       ),
-      bottomNavigationBar: ItemBottomNAvBar(),
+      bottomNavigationBar: ItemBottomNAvBar(
+        priceTto: products[0]['price'],
+        ontap: () {
+          createOrder();
+        },
+      ),
     );
   }
 
@@ -286,5 +333,36 @@ class _ItemsPageState extends State<ItemsPage> {
         isLoading = false;
       });
     }
+  }
+
+  Future<Response> createOrder() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    String url = API_URL + '';
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String token = prefs.getString('token')!;
+
+    var response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+      body: json.encode({
+        'total_price': 100.00,
+        'date_of_delivery': '2024-04-15',
+        'order_items': [
+          {'product_id': 2, 'quantity': 2, 'price': 50.00},
+          {'product_id': 2, 'quantity': 1, 'price': 30.00}
+        ]
+      }),
+    );
+
+    return response;
   }
 }

@@ -2,7 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ItemBottomNAvBar extends StatelessWidget {
-  const ItemBottomNAvBar({super.key});
+  final void Function()? ontap;
+  final String? priceTto;
+
+  const ItemBottomNAvBar(
+      {super.key, required this.ontap, required this.priceTto});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +33,7 @@ class ItemBottomNAvBar extends StatelessWidget {
                 ),
                 // total price
                 Text(
-                  "\$90",
+                  "\$${priceTto}",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 19,
@@ -48,7 +52,9 @@ class ItemBottomNAvBar extends StatelessWidget {
                 horizontal: 18,
               ),
               color: Colors.red,
-              onPressed: () {},
+              onPressed: () {
+                print("add to cart");
+              },
               child: Row(
                 children: [
                   // icon
