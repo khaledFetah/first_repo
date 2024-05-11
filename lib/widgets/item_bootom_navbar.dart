@@ -52,9 +52,7 @@ class ItemBottomNAvBar extends StatelessWidget {
                 horizontal: 18,
               ),
               color: Colors.red,
-              onPressed: () {
-                print("add to cart");
-              },
+              onPressed: ontap,
               child: Row(
                 children: [
                   // icon

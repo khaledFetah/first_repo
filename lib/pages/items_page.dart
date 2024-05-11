@@ -2,6 +2,7 @@ import 'package:clippy_flutter/arc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_10/auth/constans.dart';
+import 'package:flutter_application_10/main.dart';
 import 'package:flutter_application_10/widgets/item_bootom_navbar.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
@@ -305,8 +306,36 @@ class _ItemsPageState extends State<ItemsPage> {
       ),
       bottomNavigationBar: ItemBottomNAvBar(
         priceTto: products[0]['price'],
-        ontap: () {
-          createOrder();
+        ontap: () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          int userId = prefs.getInt('userId') ?? 0;
+          if (userId != 0) {
+            try {
+              await createOrder(
+                  userId, // معرف المستخدم
+                  orderItems, // قائمة بالعناصر التي تمت إضافتها إلى السلة
+                  totalPrice, // السعر الإجمالي
+                  'تاريخ التوصيل المحدد' // تاريخ التوصيل المحدد
+                  );
+              // عرض رسالة نجاح
+              final _context = MyApp.navKey.currentContext;
+              if (_context != null) {
+                ScaffoldMessenger.of(_context).showSnackBar(SnackBar(
+                  content: Text("تمت إضافة الطلب بنجاح"),
+                ));
+              }
+            } catch (error) {
+              print('خطأ في إنشاء الطلب: $error');
+            }
+          } else {
+            print('معرف المستخدم غير موجود في SharedPreferences');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    'معرف المستخدم غير موجود. يرجى تسجيل الدخول مرة أخرى.'),
+              ),
+            );
+          }
         },
       ),
     );
@@ -335,33 +364,45 @@ class _ItemsPageState extends State<ItemsPage> {
     }
   }
 
-  Future<Response> createOrder() async {
+// Create Order Function
+  Future<Response> createOrder(
+      int userId,
+      List<Map<String, dynamic>> orderItems,
+      double totalPrice,
+      String deliveryDate) async {
     setState(() {
       isLoading = true;
     });
 
-    String url = API_URL + '';
+    String url = API_URL + 'orders/store';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     String token = prefs.getString('token')!;
 
-    var response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
-      },
-      body: json.encode({
-        'total_price': 100.00,
-        'date_of_delivery': '2024-04-15',
-        'order_items': [
-          {'product_id': 2, 'quantity': 2, 'price': 50.00},
-          {'product_id': 2, 'quantity': 1, 'price': 30.00}
-        ]
-      }),
-    );
+    var orderData = {
+      'total_price': totalPrice,
+      'date_of_delivery': deliveryDate,
+      'order_items': orderItems.map((item) {
+        return {
+          'product_id': item['product_id'],
+          'quantity': item['quantity'],
+          'price': item['price']
+        };
+      }).toList()
+    };
+
+    var response = await http.post(Uri.parse(url),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
+        body: json.encode(orderData));
+
+    setState(() {
+      isLoading = false;
+    });
 
     return response;
   }
