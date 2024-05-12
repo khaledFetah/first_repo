@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_10/auth/constans.dart';
+import 'package:flutter_application_10/auth/onehelpers.dart';
+import 'package:flutter_application_10/main.dart';
 import 'dart:convert';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
@@ -134,7 +136,42 @@ class _MyWishListState extends State<MyWishList> {
                                 // Delete From Favorites
                                 IconButton(
                                   onPressed: () async {
-                                    await removeWishlist(product['id']);
+                                    var deleteProductResponse =
+                                        await removeWishlist(
+                                            wishlist[index]['id']);
+                                    print(product['id']);
+                                    if (deleteProductResponse.statusCode ==
+                                        200) {
+                                      print("OK");
+                                      await getTimeLine();
+                                      final _context =
+                                          MyApp.navKey.currentContext;
+                                      if (_context != null) {
+                                        ScaffoldMessenger.of(_context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                "Wishlist item deleted successfully!"),
+                                          ),
+                                        );
+                                        await getTimeLine();
+                                      }
+                                    } else {
+                                      print("Problem");
+                                      await getTimeLine();
+                                      final _context =
+                                          MyApp.navKey.currentContext;
+                                      if (_context != null) {
+                                        ScaffoldMessenger.of(_context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                "Failed to delete wishlist item."),
+                                          ),
+                                        );
+                                        await getTimeLine();
+                                      }
+                                    }
                                   },
                                   icon: Icon(
                                     CupertinoIcons.delete,
@@ -192,26 +229,21 @@ class _MyWishListState extends State<MyWishList> {
   }
 
   // delete from wishlist
-  Future<Response> removeWishlist(int productId) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token = prefs.getString('token')!;
-    String url = API_URL +
-        'wishlists/delete/$productId'; // تحديد الرابط الذي يقوم بإزالة المنتج من قائمة الرغبات
+  Future<Response> removeWishlist(id) async {
     setState(() {
       isLoading = true;
     });
-    var response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
-      },
-    );
+    String url = API_URL + 'wishlists/delete/${id.toString()}';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    var resposne = await http.delete(Uri.parse(url), headers: {
+      'Authorization': 'Bearer $token',
+    });
     setState(() {
       isLoading = false;
     });
-    return response;
+    return resposne;
   }
 
   // see every products

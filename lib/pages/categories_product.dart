@@ -51,7 +51,7 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
                     return Container(
                       width: 300,
                       decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.5),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       margin: const EdgeInsets.all(10),
@@ -76,11 +76,27 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
                                 padding: EdgeInsets.all(12),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
-                                  child: Image.network(
-                                    products[index]['image'],
-                                    // height: MediaQuery.of(context).size.height *
-                                    //     0.24,
-                                  ),
+                                  child: products[index]['image'] != null
+                                      ? Image.network(
+                                          "${products[index]['image']}",
+                                          fit: BoxFit.cover,
+                                          width: 100,
+                                          height: 100,
+                                          errorBuilder: (BuildContext context,
+                                              Object exception,
+                                              StackTrace? stackTrace) {
+                                            return Icon(
+                                              Icons.error,
+                                              size: 100,
+                                              color: Colors.red,
+                                            );
+                                          },
+                                        )
+                                      : Icon(
+                                          Icons.image,
+                                          size: 200,
+                                          color: Colors.grey,
+                                        ),
                                 ),
                               ),
                               SizedBox(

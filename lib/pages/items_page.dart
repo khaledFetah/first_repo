@@ -26,7 +26,8 @@ class _ItemsPageState extends State<ItemsPage> {
   List<dynamic> products = [];
 
   bool isLoading = false;
-
+  late int ProductID;
+  var priceP;
   @override
   void initState() {
     super.initState();
@@ -57,253 +58,282 @@ class _ItemsPageState extends State<ItemsPage> {
         // اضافة العنوان هنا
         title: Text('Items Page'),
       ),
-      body: ListView.builder(
-        scrollDirection: Axis.vertical,
-        itemCount: products.length, // تغيير عدد العناصر هنا
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      currentProduct = products[index];
-                    });
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: products[index]['image'] != null
-                        ? Image.network(
-                            "${products[index]['image']}",
-                            fit: BoxFit.cover,
-                            width: 200,
-                            height: 200,
-                            errorBuilder: (BuildContext context,
-                                Object exception, StackTrace? stackTrace) {
-                              return Icon(
-                                Icons.error,
-                                size: 200,
-                                color: Colors
-                                    .red, // لون الأيقونة في حالة فشل عملية التحميل
-                              );
-                            },
-                          )
-                        : Icon(
-                            Icons.image,
-                            size: 200,
-                            color: Colors
-                                .grey, // لون الأيقونة في حالة عدم وجود عنوان URL
-                          ),
-                  ),
-                ),
-                Arc(
-                  edge: Edge.TOP,
-                  arcType: ArcType.CONVEY,
-                  height: 30,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 3,
-                          blurRadius: 10,
-                          offset: Offset(0, 3),
-                        )
-                      ],
-                    ),
-                    width: double.infinity,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+      body: (isLoading == false && products.length == 0)
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : (isLoading == true)
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemCount: products.length, // تغيير عدد العناصر هنا
+                  itemBuilder: (context, index) {
+                    ProductID = products[index]['id'];
+                    priceP = products[index]['price'];
+                    return Padding(
+                      padding: EdgeInsets.all(16),
                       child: Column(
                         children: [
-                          Padding(
-                            padding: EdgeInsets.only(top: 60, bottom: 10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                RatingBar.builder(
-                                  initialRating: 4,
-                                  minRating: 1,
-                                  itemCount: 5,
-                                  itemSize: 20,
-                                  itemPadding:
-                                      EdgeInsets.symmetric(horizontal: 4),
-                                  direction: Axis.horizontal,
-                                  itemBuilder: (context, _) => Icon(
-                                    Icons.star,
-                                    color: Colors.red,
-                                  ),
-                                  onRatingUpdate: (context) {},
-                                ),
-                                Text(
-                                  "\$${products[index]['price']}",
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 10, bottom: 20),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  products[index]['name'], // تغيير هنا
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Container(
-                                  width: 90,
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          alignment: Alignment.centerLeft,
-                                          child: IconButton(
-                                            onPressed: decreaseItemCount,
-                                            icon: Icon(
-                                              CupertinoIcons.minus,
-                                              color: Colors.white,
-                                              size: 20,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          itemCount.toString(),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      // inc
-                                      Expanded(
-                                        child: IconButton(
-                                          onPressed: increaseItemCount,
-                                          icon: Icon(
-                                            CupertinoIcons.plus,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: 10),
-                            child: Text(
-                              products[index]['description'], // تغيير هنا
-                              textAlign: TextAlign.justify,
-                              style: TextStyle(
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: 15),
-                            child: Row(
-                              children: [
-                                Text.rich(
-                                  TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: "Remaining stock : ",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                      ),
-                                      TextSpan(
-                                        text: "${products[index]['stock']}",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                currentProduct = products[index];
+                              });
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.all(16),
+                              child: products[index]['image'] != null
+                                  ? Image.network(
+                                      "${products[index]['image']}",
+                                      fit: BoxFit.cover,
+                                      width: 200,
+                                      height: 200,
+                                      errorBuilder: (BuildContext context,
+                                          Object exception,
+                                          StackTrace? stackTrace) {
+                                        return Icon(
+                                          Icons.error,
+                                          size: 200,
                                           color: Colors
-                                              .red, // يمكنك تغيير اللون إذا كنت ترغب في ذلك
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  textAlign: TextAlign.justify,
-                                ),
-
-                                // Add icon here if needed
-                              ],
+                                              .red, // لون الأيقونة في حالة فشل عملية التحميل
+                                        );
+                                      },
+                                    )
+                                  : Icon(
+                                      Icons.image,
+                                      size: 200,
+                                      color: Colors
+                                          .grey, // لون الأيقونة في حالة عدم وجود عنوان URL
+                                    ),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Delivery Time : ",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                  textAlign: TextAlign.justify,
-                                ),
-                                Row(
+                          Arc(
+                            edge: Edge.TOP,
+                            arcType: ArcType.CONVEY,
+                            height: 30,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 3,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 3),
+                                  )
+                                ],
+                              ),
+                              width: double.infinity,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 20),
+                                child: Column(
                                   children: [
                                     Padding(
                                       padding:
-                                          EdgeInsets.symmetric(horizontal: 5),
-                                      child: Icon(
-                                        CupertinoIcons.clock,
-                                        color: Colors.red,
+                                          EdgeInsets.only(top: 60, bottom: 10),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          RatingBar.builder(
+                                            initialRating: 4,
+                                            minRating: 1,
+                                            itemCount: 5,
+                                            itemSize: 20,
+                                            itemPadding: EdgeInsets.symmetric(
+                                                horizontal: 4),
+                                            direction: Axis.horizontal,
+                                            itemBuilder: (context, _) => Icon(
+                                              Icons.star,
+                                              color: Colors.red,
+                                            ),
+                                            onRatingUpdate: (context) {},
+                                          ),
+                                          Text(
+                                            "\$${products[index]['price']}",
+                                            style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          )
+                                        ],
                                       ),
                                     ),
-                                    Text(
-                                      "30 Minutes ",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        fontStyle: FontStyle.italic,
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.only(top: 10, bottom: 20),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            products[index]
+                                                ['name'], // تغيير هنا
+                                            style: TextStyle(
+                                              fontSize: 28,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Container(
+                                            width: 90,
+                                            padding: EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                              color: Colors.red,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Expanded(
+                                                  child: Container(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: IconButton(
+                                                      onPressed:
+                                                          decreaseItemCount,
+                                                      icon: Icon(
+                                                        CupertinoIcons.minus,
+                                                        color: Colors.white,
+                                                        size: 20,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    itemCount.toString(),
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                                // inc
+                                                Expanded(
+                                                  child: IconButton(
+                                                    onPressed:
+                                                        increaseItemCount,
+                                                    icon: Icon(
+                                                      CupertinoIcons.plus,
+                                                      color: Colors.white,
+                                                      size: 20,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        ],
                                       ),
-                                      textAlign: TextAlign.justify,
+                                    ),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 10),
+                                      child: Text(
+                                        products[index]
+                                            ['description'], // تغيير هنا
+                                        textAlign: TextAlign.justify,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 15),
+                                      child: Row(
+                                        children: [
+                                          Text.rich(
+                                            TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: "Remaining stock : ",
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontStyle: FontStyle.italic,
+                                                  ),
+                                                ),
+                                                TextSpan(
+                                                  text:
+                                                      "${products[index]['stock']}",
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors
+                                                        .red, // يمكنك تغيير اللون إذا كنت ترغب في ذلك
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            textAlign: TextAlign.justify,
+                                          ),
+
+                                          // Add icon here if needed
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 4),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "Delivery Time : ",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                            textAlign: TextAlign.justify,
+                                          ),
+                                          Row(
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 5),
+                                                child: Icon(
+                                                  CupertinoIcons.clock,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                              Text(
+                                                "30 Minutes ",
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontStyle: FontStyle.italic,
+                                                ),
+                                                textAlign: TextAlign.justify,
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
                                     ),
                                   ],
-                                )
-                              ],
+                                ),
+                              ),
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
-              ],
-            ),
-          );
-        },
-      ),
       bottomNavigationBar: ItemBottomNAvBar(
         priceTto: products[0]['price'],
         ontap: () async {
@@ -311,21 +341,15 @@ class _ItemsPageState extends State<ItemsPage> {
           int userId = prefs.getInt('userId') ?? 0;
           if (userId != 0) {
             try {
-              await createOrder(
-                  userId, // معرف المستخدم
-                  orderItems, // قائمة بالعناصر التي تمت إضافتها إلى السلة
-                  totalPrice, // السعر الإجمالي
-                  'تاريخ التوصيل المحدد' // تاريخ التوصيل المحدد
-                  );
-              // عرض رسالة نجاح
+              await createOrder(userId, orderItems, totalPrice, 'data itme');
+
               final _context = MyApp.navKey.currentContext;
               if (_context != null) {
-                ScaffoldMessenger.of(_context).showSnackBar(SnackBar(
-                  content: Text("تمت إضافة الطلب بنجاح"),
-                ));
+                ScaffoldMessenger.of(_context).showSnackBar(
+                    SnackBar(content: Text("Order Created Successfully")));
               }
             } catch (error) {
-              print('خطأ في إنشاء الطلب: $error');
+              print('Error : $error');
             }
           } else {
             print('معرف المستخدم غير موجود في SharedPreferences');
@@ -380,16 +404,18 @@ class _ItemsPageState extends State<ItemsPage> {
 
     String token = prefs.getString('token')!;
 
+    var formattedOrderItems = orderItems.map((item) {
+      return {
+        'product_id': item['product_id'],
+        'quantity': item['quantity'],
+        'price': item['price']
+      };
+    }).toList();
+
     var orderData = {
       'total_price': totalPrice,
       'date_of_delivery': deliveryDate,
-      'order_items': orderItems.map((item) {
-        return {
-          'product_id': item['product_id'],
-          'quantity': item['quantity'],
-          'price': item['price']
-        };
-      }).toList()
+      'order_items': formattedOrderItems,
     };
 
     var response = await http.post(Uri.parse(url),
@@ -402,6 +428,11 @@ class _ItemsPageState extends State<ItemsPage> {
 
     setState(() {
       isLoading = false;
+      formattedOrderItems.forEach((item) {
+        print('Product ID: ${item['product_id']}');
+        print('Quantity: ${item['quantity']}');
+        print('Price: ${item['price']}');
+      });
     });
 
     return response;

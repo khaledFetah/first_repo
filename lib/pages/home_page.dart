@@ -283,7 +283,95 @@ class _HomePageState extends State<HomePage> {
                     ),
 
                     // Newest item Widget
-                    NewestItemWidget(),
+
+// Newest items widget
+                    SizedBox(
+                      height: 280,
+                      child: ListView.builder(
+                        scrollDirection: Axis.vertical,
+                        itemCount: products.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ItemsPage(
+                                      currentAddress: products[index],
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: NewestItemWidget(
+                                ImageSrc: Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: products[index]['image'] != null
+                                      ? Image.network(
+                                          "${products[index]['image']}",
+                                          fit: BoxFit.cover,
+                                          width: 100,
+                                          height: 100,
+                                          errorBuilder: (BuildContext context,
+                                              Object exception,
+                                              StackTrace? stackTrace) {
+                                            return Icon(
+                                              Icons.error,
+                                              size: 100,
+                                              color: Colors.red,
+                                            );
+                                          },
+                                        )
+                                      : Icon(
+                                          Icons.image,
+                                          size: 200,
+                                          color: Colors.grey,
+                                        ),
+                                ),
+                                descProd: products[index]['description'],
+                                nameProd: products[index]['name'],
+                                priceProd: products[index]['price'].toString(),
+                                yourIcon: Icons.favorite_border,
+                                onTap: () async {
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  int userId = prefs.getInt('userId') ?? 0;
+                                  if (userId != 0) {
+                                    try {
+                                      await createWishlist(
+                                          userId, products[index]['id']);
+                                      final _context =
+                                          MyApp.navKey.currentContext;
+                                      if (_context != null) {
+                                        ScaffoldMessenger.of(_context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                "The Added Favorite Successfully"),
+                                          ),
+                                        );
+                                      }
+                                    } catch (error) {
+                                      print('Error creating wishlist: $error');
+                                    }
+                                  } else {
+                                    print(
+                                        'User ID not found in SharedPreferences');
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            'User ID not found. Please login again.'),
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ],
                 ),
       // DRAWER WIDGET

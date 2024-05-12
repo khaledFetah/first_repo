@@ -3,6 +3,7 @@ import 'package:flutter_application_10/pages/cart_page.dart';
 import 'package:flutter_application_10/pages/home_page.dart';
 import 'package:flutter_application_10/pages/intro_page.dart';
 import 'package:flutter_application_10/pages/login_page.dart';
+import 'package:flutter_application_10/pages/my_orders_page.dart';
 import 'package:flutter_application_10/pages/new_address.dart';
 import 'package:flutter_application_10/pages/ny_wish_list.dart';
 import 'package:flutter_application_10/pages/profile_page.dart';
@@ -63,6 +64,7 @@ class MyApp extends StatelessWidget {
         'profile': (context) => ProfilePage(),
         'newaddress': (context) => AddNewAddress(),
         'wishlist': (context) => MyWishList(),
+        'myorders': (context) => OrderScreen(),
       },
     );
   }

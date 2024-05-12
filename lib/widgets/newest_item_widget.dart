@@ -2,8 +2,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
+// ignore: must_be_immutable
 class NewestItemWidget extends StatelessWidget {
-  const NewestItemWidget({super.key});
+  Widget? ImageSrc;
+  String? nameProd;
+  String? descProd;
+  String? priceProd;
+  IconData? yourIcon;
+  final VoidCallback onTap;
+  NewestItemWidget({
+    super.key,
+    required this.ImageSrc,
+    required this.descProd,
+    required this.nameProd,
+    required this.priceProd,
+    required this.yourIcon,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,56 +27,50 @@ class NewestItemWidget extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         child: Column(
           children: [
-            for (int i = 0; i < 4; i++)
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Container(
-                  width: 380,
-                  height: 150,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 3,
-                          blurRadius: 10,
-                          offset: Offset(0, 3),
-                        )
-                      ]),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // 1 widget
-                        InkWell(
-                          onTap: () {
-                            print("go to items_page");
-                            Navigator.pushNamed(context, 'items');
-                          },
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Container(
+                width: double.infinity,
+                height: 150,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 3,
+                        blurRadius: 10,
+                        offset: Offset(0, 3),
+                      )
+                    ]),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // 1 widget
+                      Expanded(
+                        child: InkWell(
+                          onTap: onTap,
                           child: Container(
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.ac_unit,
-                              size: 100,
-                            ),
-                          ),
+                              alignment: Alignment.center, child: ImageSrc),
                         ),
-                        // 2 widget
-                        Container(
+                      ),
+                      // 2 widget
+                      Expanded(
+                        child: Container(
                           width: 190,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Text("Hot Pizza",
+                              Text("${nameProd}",
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   )),
                               Text(
-                                "Test ous somew words sjaj",
+                                "${descProd}",
                                 style: TextStyle(
                                   fontSize: 16,
                                 ),
@@ -83,7 +92,7 @@ class NewestItemWidget extends StatelessWidget {
                               ),
                               // price
                               Text(
-                                "\$10",
+                                "\$${priceProd}",
                                 style: TextStyle(
                                   fontSize: 20,
                                   color: Colors.red,
@@ -93,11 +102,14 @@ class NewestItemWidget extends StatelessWidget {
                             ],
                           ),
                         ),
-                        Padding(
+                      ),
+                      Expanded(
+                        child: Padding(
                           padding: EdgeInsets.symmetric(
                             vertical: 10,
                           ),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               // favorite
@@ -114,12 +126,13 @@ class NewestItemWidget extends StatelessWidget {
                               )
                             ],
                           ),
-                        )
-                      ],
-                    ),
+                        ),
+                      )
+                    ],
                   ),
                 ),
               ),
+            ),
           ],
         ),
       ),

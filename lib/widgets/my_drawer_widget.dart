@@ -85,6 +85,9 @@ class _MYyDrawerWidgetState extends State<MYyDrawerWidget> {
                 ),
               )),
           ListTile(
+              onTap: () {
+                Navigator.pushNamed(context, 'myorders');
+              },
               leading: Icon(
                 CupertinoIcons.cart_fill,
                 color: Colors.red,

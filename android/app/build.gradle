@@ -14,7 +14,7 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
+    flutterVersionCode = '1.0'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
@@ -24,8 +24,8 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.example.flutter_application_10"
-    compileSdkVersion 34
-    ndkVersion "25.1.8937393"
+    compileSdkVersion flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

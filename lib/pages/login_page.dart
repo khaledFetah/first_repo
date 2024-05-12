@@ -226,7 +226,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 prefs.setString('token', jsonResponse['token']);
                                 prefs.setString('name', jsonResponse['name']);
                                 prefs.setBool('is_loggedin', true);
-
+                                prefs.getInt('userId');
+                                print(prefs.getInt('USERID : userId'));
                                 // توجيه المستخدم إلى الصفحة الرئيسية
                                 Navigator.pushReplacementNamed(context, 'home');
 
