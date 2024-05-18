@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_10/auth/constans.dart';
+import 'package:flutter_application_10/widgets/my_drawer_widget.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -105,6 +106,7 @@ class _OrderScreenState extends State<OrderScreen> {
       appBar: AppBar(
         title: Text('Orders'),
       ),
+      drawer: MYyDrawerWidget(),
       body: isLoading
           ? Center(
               child: CircularProgressIndicator(),
@@ -114,6 +116,18 @@ class _OrderScreenState extends State<OrderScreen> {
                   itemCount: orders.length,
                   itemBuilder: (BuildContext context, int index) {
                     return ListTile(
+                      leading: GestureDetector(
+                        onTap: () {
+                          print("delete");
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Colors.red,
+                          child: Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                       title: Text('Order #${orders[index]['id']}'),
                       subtitle: Text('Status: ${orders[index]['status']}'),
                       trailing: Text('Total: ${orders[index]['total']}'),

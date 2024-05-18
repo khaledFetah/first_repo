@@ -51,11 +51,12 @@ class _ItemsPageState extends State<ItemsPage> {
     }
   }
 
+  int currentIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // اضافة العنوان هنا
+        // Add the title here
         title: Text('Items Page'),
       ),
       body: (isLoading == false && products.length == 0)
@@ -68,7 +69,7 @@ class _ItemsPageState extends State<ItemsPage> {
                 )
               : ListView.builder(
                   scrollDirection: Axis.vertical,
-                  itemCount: products.length, // تغيير عدد العناصر هنا
+                  itemCount: products.length, // Change the number of items here
                   itemBuilder: (context, index) {
                     ProductID = products[index]['id'];
                     priceP = products[index]['price'];
@@ -97,7 +98,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                           Icons.error,
                                           size: 200,
                                           color: Colors
-                                              .red, // لون الأيقونة في حالة فشل عملية التحميل
+                                              .red, // Icon color in case of loading failure
                                         );
                                       },
                                     )
@@ -105,7 +106,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                       Icons.image,
                                       size: 200,
                                       color: Colors
-                                          .grey, // لون الأيقونة في حالة عدم وجود عنوان URL
+                                          .grey, // Icon color in case URL is not present
                                     ),
                             ),
                           ),
@@ -171,7 +172,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                         children: [
                                           Text(
                                             products[index]
-                                                ['name'], // تغيير هنا
+                                                ['name'], // Change here
                                             style: TextStyle(
                                               fontSize: 28,
                                               fontWeight: FontWeight.bold,
@@ -242,7 +243,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                           EdgeInsets.symmetric(vertical: 10),
                                       child: Text(
                                         products[index]
-                                            ['description'], // تغيير هنا
+                                            ['description'], // Change here
                                         textAlign: TextAlign.justify,
                                         style: TextStyle(
                                           fontSize: 16,
@@ -272,7 +273,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.bold,
                                                     color: Colors
-                                                        .red, // يمكنك تغيير اللون إذا كنت ترغب في ذلك
+                                                        .red, // Change color if needed
                                                   ),
                                                 ),
                                               ],
@@ -335,13 +336,17 @@ class _ItemsPageState extends State<ItemsPage> {
                   },
                 ),
       bottomNavigationBar: ItemBottomNAvBar(
-        priceTto: products[0]['price'],
+        priceTto: products[0]['price'].toString(),
         ontap: () async {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           int userId = prefs.getInt('userId') ?? 0;
           if (userId != 0) {
             try {
-              await createOrder(userId, orderItems, totalPrice, 'data itme');
+              await createOrder(userId, orderItems,
+                  double.parse(products[currentIndex]['price']), 'data itme');
+              print(userId);
+              print(orderItems);
+              print(totalPrice);
 
               final _context = MyApp.navKey.currentContext;
               if (_context != null) {
@@ -352,11 +357,10 @@ class _ItemsPageState extends State<ItemsPage> {
               print('Error : $error');
             }
           } else {
-            print('معرف المستخدم غير موجود في SharedPreferences');
+            print('User ID not found in SharedPreferences');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(
-                    'معرف المستخدم غير موجود. يرجى تسجيل الدخول مرة أخرى.'),
+                content: Text('User ID not found. Please login again.'),
               ),
             );
           }
@@ -379,7 +383,7 @@ class _ItemsPageState extends State<ItemsPage> {
       var jsonResponse = jsonDecode(response.body);
       setState(() {
         isLoading = false;
-        products = [jsonResponse['product']]; // تغيير هنا
+        products = [jsonResponse['product']]; // Change here
       });
     } else {
       setState(() {
@@ -388,7 +392,7 @@ class _ItemsPageState extends State<ItemsPage> {
     }
   }
 
-// Create Order Function
+  // Create Order Function
   Future<Response> createOrder(
       int userId,
       List<Map<String, dynamic>> orderItems,
@@ -407,7 +411,7 @@ class _ItemsPageState extends State<ItemsPage> {
     var formattedOrderItems = orderItems.map((item) {
       return {
         'product_id': item['product_id'],
-        'quantity': item['quantity'],
+        'quantity': itemCount,
         'price': item['price']
       };
     }).toList();

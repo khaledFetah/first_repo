@@ -492,7 +492,6 @@ class _AddNewAddressState extends State<AddNewAddress> {
                   ),
                 ),
               ),
-              // login button// زر تسجيل الدخول
 
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -504,6 +503,7 @@ class _AddNewAddressState extends State<AddNewAddress> {
                   color: Colors.red,
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
+                      isLoading = true;
                       await CreateAdress().then((response) {
                         setState(() {
                           isLoading = false;
