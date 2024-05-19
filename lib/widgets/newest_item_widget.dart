@@ -50,6 +50,7 @@ class NewestItemWidget extends StatelessWidget {
                     children: [
                       // 1 widget
                       Expanded(
+                        flex: 2,
                         child: InkWell(
                           onTap: onTap,
                           child: Container(
@@ -58,6 +59,7 @@ class NewestItemWidget extends StatelessWidget {
                       ),
                       // 2 widget
                       Expanded(
+                        flex: 2,
                         child: Container(
                           width: 190,
                           child: Column(
@@ -103,31 +105,6 @@ class NewestItemWidget extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 10,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // favorite
-                              Icon(
-                                Icons.favorite_border,
-                                color: Colors.red,
-                                size: 26,
-                              ),
-                              // add sale
-                              Icon(
-                                CupertinoIcons.cart,
-                                color: Colors.red,
-                                size: 26,
-                              )
-                            ],
-                          ),
-                        ),
-                      )
                     ],
                   ),
                 ),
