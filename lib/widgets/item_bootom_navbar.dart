@@ -62,7 +62,7 @@ class ItemBottomNAvBar extends StatelessWidget {
                   ),
                   //text
                   Text(
-                    "  Add To Cart",
+                    "  Order Now",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.white,

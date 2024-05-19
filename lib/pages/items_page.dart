@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_10/auth/constans.dart';
 import 'package:flutter_application_10/main.dart';
+import 'package:flutter_application_10/pages/reviews_page.dart';
 import 'package:flutter_application_10/widgets/item_bootom_navbar.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
@@ -308,6 +309,61 @@ class _ItemsPageState extends State<ItemsPage> {
                                                 textAlign: TextAlign.justify,
                                               ),
                                             ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    // Reviws
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 4),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "People's opinions : ",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                            textAlign: TextAlign.justify,
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ReviewsPage(
+                                                          productId: productID),
+                                                ),
+                                              );
+                                            },
+                                            child: Row(
+                                              children: [
+                                                Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 5),
+                                                  child: Icon(
+                                                    Icons.reviews_outlined,
+                                                    color: Colors.red,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  "View all reviews ",
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontStyle:
+                                                          FontStyle.italic,
+                                                      color: Colors.black87),
+                                                  textAlign: TextAlign.justify,
+                                                ),
+                                              ],
+                                            ),
                                           )
                                         ],
                                       ),

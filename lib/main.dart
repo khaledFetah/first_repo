@@ -8,8 +8,8 @@ import 'package:flutter_application_10/pages/new_address.dart';
 import 'package:flutter_application_10/pages/ny_wish_list.dart';
 import 'package:flutter_application_10/pages/profile_page.dart';
 import 'package:flutter_application_10/pages/regster.dart';
+import 'package:flutter_application_10/pages/reviews_page.dart';
 import 'package:flutter_application_10/providers/home_provider.dart';
-import 'package:flutter_application_10/providers/item_page_provider.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,9 +29,6 @@ void main() async {
         ChangeNotifierProvider(
             create: (_) => HomeProvider()..loadInitialData()),
         // item page provider
-        ChangeNotifierProvider(
-          create: (_) => ProductProvider(),
-        ),
       ],
     ),
   );
@@ -79,6 +76,7 @@ class MyApp extends StatelessWidget {
         'newaddress': (context) => AddNewAddress(),
         'wishlist': (context) => MyWishList(),
         'myorders': (context) => OrderScreen(),
+        'rev': (context) => HomePage(),
       },
     );
   }
