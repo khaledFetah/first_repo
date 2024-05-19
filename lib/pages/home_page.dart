@@ -160,6 +160,7 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                   );
+                  print("object");
                 },
                 child: PopularItemWidget(
                   ImageSrc:

@@ -9,6 +9,7 @@ import 'package:flutter_application_10/pages/ny_wish_list.dart';
 import 'package:flutter_application_10/pages/profile_page.dart';
 import 'package:flutter_application_10/pages/regster.dart';
 import 'package:flutter_application_10/providers/home_provider.dart';
+import 'package:flutter_application_10/providers/item_page_provider.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,8 +25,13 @@ void main() async {
         child: MyApp(isLoggedin),
       ),
       providers: [
+        // home page provider
         ChangeNotifierProvider(
             create: (_) => HomeProvider()..loadInitialData()),
+        // item page provider
+        ChangeNotifierProvider(
+          create: (_) => ProductProvider(),
+        ),
       ],
     ),
   );

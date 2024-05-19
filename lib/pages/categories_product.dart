@@ -112,9 +112,7 @@ class _CategoryProductScreenState extends State<CategoryProductScreen> {
                               Text(
                                 products[index]['description'],
                                 style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .inversePrimary,
+                                  color: Colors.black,
                                 ),
                               ),
                               Container(

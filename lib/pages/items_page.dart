@@ -26,7 +26,7 @@ class _ItemsPageState extends State<ItemsPage> {
   List<dynamic> products = [];
 
   bool isLoading = false;
-  late int ProductID;
+  late int productID;
   var priceP;
   @override
   void initState() {
@@ -35,14 +35,13 @@ class _ItemsPageState extends State<ItemsPage> {
   }
 
   int itemCount = 1;
-// +
+
   void increaseItemCount() {
     setState(() {
       itemCount++;
     });
   }
 
-// _
   void decreaseItemCount() {
     if (itemCount > 1) {
       setState(() {
@@ -52,26 +51,26 @@ class _ItemsPageState extends State<ItemsPage> {
   }
 
   int currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Add the title here
         title: Text('Items Page'),
       ),
-      body: (isLoading == false && products.length == 0)
+      body: (isLoading)
           ? Center(
               child: CircularProgressIndicator(),
             )
-          : (isLoading == true)
+          : (products.isEmpty)
               ? Center(
-                  child: CircularProgressIndicator(),
+                  child: Text('No products available'),
                 )
               : ListView.builder(
                   scrollDirection: Axis.vertical,
-                  itemCount: products.length, // Change the number of items here
+                  itemCount: products.length,
                   itemBuilder: (context, index) {
-                    ProductID = products[index]['id'];
+                    productID = products[index]['id'];
                     priceP = products[index]['price'];
                     return Padding(
                       padding: EdgeInsets.all(16),
@@ -97,16 +96,14 @@ class _ItemsPageState extends State<ItemsPage> {
                                         return Icon(
                                           Icons.error,
                                           size: 200,
-                                          color: Colors
-                                              .red, // Icon color in case of loading failure
+                                          color: Colors.red,
                                         );
                                       },
                                     )
                                   : Icon(
                                       Icons.image,
                                       size: 200,
-                                      color: Colors
-                                          .grey, // Icon color in case URL is not present
+                                      color: Colors.grey,
                                     ),
                             ),
                           ),
@@ -151,7 +148,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                               Icons.star,
                                               color: Colors.red,
                                             ),
-                                            onRatingUpdate: (context) {},
+                                            onRatingUpdate: (rating) {},
                                           ),
                                           Text(
                                             "\$${products[index]['price']}",
@@ -171,8 +168,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            products[index]
-                                                ['name'], // Change here
+                                            products[index]['name'],
                                             style: TextStyle(
                                               fontSize: 28,
                                               fontWeight: FontWeight.bold,
@@ -194,17 +190,13 @@ class _ItemsPageState extends State<ItemsPage> {
                                                   CrossAxisAlignment.center,
                                               children: [
                                                 Expanded(
-                                                  child: Container(
-                                                    alignment:
-                                                        Alignment.centerLeft,
-                                                    child: IconButton(
-                                                      onPressed:
-                                                          decreaseItemCount,
-                                                      icon: Icon(
-                                                        CupertinoIcons.minus,
-                                                        color: Colors.white,
-                                                        size: 20,
-                                                      ),
+                                                  child: IconButton(
+                                                    onPressed:
+                                                        decreaseItemCount,
+                                                    icon: Icon(
+                                                      CupertinoIcons.minus,
+                                                      color: Colors.white,
+                                                      size: 20,
                                                     ),
                                                   ),
                                                 ),
@@ -220,7 +212,6 @@ class _ItemsPageState extends State<ItemsPage> {
                                                     ),
                                                   ),
                                                 ),
-                                                // inc
                                                 Expanded(
                                                   child: IconButton(
                                                     onPressed:
@@ -242,8 +233,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                       padding:
                                           EdgeInsets.symmetric(vertical: 10),
                                       child: Text(
-                                        products[index]
-                                            ['description'], // Change here
+                                        products[index]['description'],
                                         textAlign: TextAlign.justify,
                                         style: TextStyle(
                                           fontSize: 16,
@@ -272,16 +262,13 @@ class _ItemsPageState extends State<ItemsPage> {
                                                   style: TextStyle(
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.bold,
-                                                    color: Colors
-                                                        .red, // Change color if needed
+                                                    color: Colors.red,
                                                   ),
                                                 ),
                                               ],
                                             ),
                                             textAlign: TextAlign.justify,
                                           ),
-
-                                          // Add icon here if needed
                                         ],
                                       ),
                                     ),
@@ -335,37 +322,42 @@ class _ItemsPageState extends State<ItemsPage> {
                     );
                   },
                 ),
-      bottomNavigationBar: ItemBottomNAvBar(
-        priceTto: products[0]['price'].toString(),
-        ontap: () async {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          int userId = prefs.getInt('userId') ?? 0;
-          if (userId != 0) {
-            try {
-              await createOrder(userId, orderItems,
-                  double.parse(products[currentIndex]['price']), 'data itme');
-              print(userId);
-              print(orderItems);
-              print(totalPrice);
+      bottomNavigationBar: products.isNotEmpty
+          ? ItemBottomNAvBar(
+              priceTto: products[currentIndex]['price'].toString(),
+              ontap: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                int userId = prefs.getInt('userId') ?? 0;
+                if (userId != 0) {
+                  try {
+                    await createOrder(
+                        userId,
+                        orderItems,
+                        double.parse(products[currentIndex]['price']),
+                        'data item');
+                    print(userId);
+                    print(orderItems);
+                    print(totalPrice);
 
-              final _context = MyApp.navKey.currentContext;
-              if (_context != null) {
-                ScaffoldMessenger.of(_context).showSnackBar(
-                    SnackBar(content: Text("Order Created Successfully")));
-              }
-            } catch (error) {
-              print('Error : $error');
-            }
-          } else {
-            print('User ID not found in SharedPreferences');
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('User ID not found. Please login again.'),
-              ),
-            );
-          }
-        },
-      ),
+                    final _context = MyApp.navKey.currentContext;
+                    if (_context != null) {
+                      ScaffoldMessenger.of(_context).showSnackBar(SnackBar(
+                          content: Text("Order Created Successfully")));
+                    }
+                  } catch (error) {
+                    print('Error : $error');
+                  }
+                } else {
+                  print('User ID not found in SharedPreferences');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('User ID not found. Please login again.'),
+                    ),
+                  );
+                }
+              },
+            )
+          : SizedBox.shrink(),
     );
   }
 
@@ -383,7 +375,7 @@ class _ItemsPageState extends State<ItemsPage> {
       var jsonResponse = jsonDecode(response.body);
       setState(() {
         isLoading = false;
-        products = [jsonResponse['product']]; // Change here
+        products = [jsonResponse['product']];
       });
     } else {
       setState(() {
@@ -392,7 +384,6 @@ class _ItemsPageState extends State<ItemsPage> {
     }
   }
 
-  // Create Order Function
   Future<Response> createOrder(
       int userId,
       List<Map<String, dynamic>> orderItems,
