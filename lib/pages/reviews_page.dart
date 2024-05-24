@@ -50,6 +50,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
                     var content = review['review'] ?? 'No content';
                     var rating = review['rating'] ?? 0;
                     var createdAt = review['created_at'] ?? 'No date';
+                    // ignore: unused_local_variable
                     var userName = review['user']?['name'] ?? 'Anonymous';
                     var userId = review['user_id'];
 
