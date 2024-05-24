@@ -9,6 +9,7 @@ class HomeProvider extends ChangeNotifier {
   List<dynamic> products = [];
   List<dynamic> categories = [];
   bool isLoading = false;
+  Set<int> favoriteProducts = Set<int>();
 
   HomeProvider() {
     loadInitialData();
@@ -80,9 +81,12 @@ class HomeProvider extends ChangeNotifier {
         final context = MyApp.navKey.currentContext;
         if (context != null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("The Added Favorite Successfully")),
+            SnackBar(
+                content: Text("The product added to favorites successfully")),
           );
         }
+        favoriteProducts.add(productId);
+        notifyListeners();
       } else {
         print('Error adding to wishlist');
       }

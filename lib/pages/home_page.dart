@@ -150,27 +150,31 @@ class HomePage extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             itemCount: homeProvider.products.length,
             itemBuilder: (context, index) {
+              final product = homeProvider.products[index];
+              final isFavorited =
+                  homeProvider.favoriteProducts.contains(product['id']);
               return GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ItemsPage(
-                        currentAddress: homeProvider.products[index],
+                        currentAddress: product,
                       ),
                     ),
                   );
-                  print("object");
                 },
                 child: PopularItemWidget(
-                  ImageSrc:
-                      buildProductImage(homeProvider.products[index]['image']),
-                  descProd: homeProvider.products[index]['description'],
-                  nameProd: homeProvider.products[index]['name'],
-                  priceProd: homeProvider.products[index]['price'].toString(),
-                  yourIcon: Icons.favorite_border,
-                  onTap: () => homeProvider
-                      .addToWishlist(homeProvider.products[index]['id']),
+                  ImageSrc: buildProductImage(product['image']),
+                  descProd: product['description'],
+                  nameProd: product['name'],
+                  priceProd: product['price'].toString(),
+                  yourIcon:
+                      isFavorited ? Icons.favorite : Icons.favorite_border,
+                  onTap: () {
+                    homeProvider.addToWishlist(product['id']);
+                  },
+                  isFavorited: isFavorited,
                 ),
               );
             },

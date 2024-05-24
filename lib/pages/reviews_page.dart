@@ -6,7 +6,6 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ReviewsPage extends StatefulWidget {
@@ -46,10 +45,85 @@ class _ReviewsPageState extends State<ReviewsPage> {
               : ListView.builder(
                   itemCount: reviews.length,
                   itemBuilder: (context, index) {
+                    var review = reviews[index];
+                    var title = review['user']?['name'] ?? 'No title';
+                    var content = review['review'] ?? 'No content';
+                    var rating = review['rating'] ?? 0;
+                    var createdAt = review['created_at'] ?? 'No date';
+                    var userName = review['user']?['name'] ?? 'Anonymous';
+                    var userId = review['user_id'];
+
                     return ListTile(
-                      title: Text(reviews[index]['title']),
-                      subtitle: Text(reviews[index]['content']),
-                      trailing: Text('${reviews[index]['rating']} ⭐'),
+                      title: Row(
+                        children: [
+                          Icon(
+                            Icons.person_outlined,
+                            color: Colors.grey,
+                          ),
+                          Text(
+                            " : ${title}",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(content),
+                          SizedBox(height: 4),
+                          Text(createdAt,
+                              style:
+                                  TextStyle(fontSize: 12, color: Colors.grey)),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text('$rating ⭐'),
+                          SizedBox(width: 8),
+                          FutureBuilder<SharedPreferences>(
+                            future: SharedPreferences.getInstance(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                      ConnectionState.done &&
+                                  snapshot.hasData) {
+                                var prefs = snapshot.data!;
+                                int currentUserId = prefs.getInt('userId')!;
+                                if (currentUserId == userId) {
+                                  return IconButton(
+                                    icon: Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () => showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text('Confirm Delete'),
+                                          content: Text(
+                                              'Are you sure you want to delete this review?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context).pop(),
+                                              child: Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                                deleteReview(review['id']);
+                                              },
+                                              child: Text('Yes'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  );
+                                }
+                              }
+                              return Container();
+                            },
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),
@@ -67,11 +141,8 @@ class _ReviewsPageState extends State<ReviewsPage> {
                     child: TextFormField(
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return 'the content is required';
+                          return 'The content is required';
                         }
-
-                        // Check if the value is a valid email address
-
                         return null;
                       },
                       cursorColor: Colors.red,
@@ -118,7 +189,9 @@ class _ReviewsPageState extends State<ReviewsPage> {
                 TextButton(
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
-                      isLoading = true;
+                      setState(() {
+                        isLoading = true;
+                      });
                       await addNewReview().then((response) {
                         setState(() {
                           isLoading = false;
@@ -141,7 +214,6 @@ class _ReviewsPageState extends State<ReviewsPage> {
                                   : "",
                             ))));
                             reviewController.clear();
-
                             Navigator.pushNamed(context, 'rev');
                           }
                         } else {
@@ -191,10 +263,45 @@ class _ReviewsPageState extends State<ReviewsPage> {
   Future<void> fetchReviews() async {
     String url =
         API_URL + 'product-review/showProductReviews/${widget.productId}';
-    final response = await http.get(Uri.parse(url));
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token')!;
+
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    print('Fetching reviews from: $url'); // طباعة URL للتحقق منه
+    print('Response status: ${response.statusCode}'); // طباعة حالة الاستجابة
+    print('Response body: ${response.body}'); // طباعة محتوى الاستجابة
+
     if (response.statusCode == 200) {
+      try {
+        var jsonResponse = json.decode(response.body);
+        if (jsonResponse.containsKey('reviews')) {
+          setState(() {
+            reviews = jsonResponse['reviews'];
+            isLoading = false;
+          });
+        } else {
+          print('No reviews key in the response');
+          setState(() {
+            isLoading = false;
+          });
+        }
+      } catch (e) {
+        print('Error parsing JSON: $e');
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } else if (response.statusCode == 401) {
+      // إذا كانت حالة الاستجابة 401، فهذا يعني أن المستخدم غير مصادق عليه
+      print('Unauthorized: Check your token');
       setState(() {
-        reviews = json.decode(response.body)['reviews'];
         isLoading = false;
       });
     } else {
@@ -205,6 +312,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
     }
   }
 
+// add riview function
   Future<Response> addNewReview() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int userIdInt = prefs.getInt('userId')!;
@@ -228,5 +336,33 @@ class _ReviewsPageState extends State<ReviewsPage> {
     );
 
     return response;
+  }
+
+  // Delete review
+  Future<void> deleteReview(int reviewId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token')!;
+
+    String url = API_URL + 'product-review/delete/$reviewId';
+    final response = await http.delete(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        reviews.removeWhere((review) => review['id'] == reviewId);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Review deleted successfully')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete review')),
+      );
+    }
   }
 }
