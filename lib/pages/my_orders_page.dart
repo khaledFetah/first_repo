@@ -15,85 +15,6 @@ class _OrderScreenState extends State<OrderScreen> {
   List<dynamic> orders = [];
   Map<String, dynamic> orderDetails = {};
 
-  Future<void> getOrders() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    String url = API_URL + 'orders/index';
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token == null) {
-      print('Token is null');
-      setState(() {
-        isLoading = false;
-      });
-      return;
-    }
-
-    try {
-      var response = await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer $token',
-      });
-
-      if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
-        setState(() {
-          isLoading = false;
-          orders = jsonResponse['data'];
-        });
-      } else {
-        print('Failed to load orders');
-        setState(() {
-          isLoading = false;
-        });
-      }
-    } catch (error) {
-      print('Error fetching orders: $error');
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> viewOrderDetails(int orderId) async {
-    String url = API_URL + 'orders/show/$orderId';
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token == null) {
-      print('Token is null');
-      return;
-    }
-
-    try {
-      var response = await http.get(Uri.parse(url), headers: {
-        'Authorization': 'Bearer $token',
-      });
-
-      if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
-        if (jsonResponse != null &&
-            jsonResponse is Map &&
-            jsonResponse.isNotEmpty) {
-          // التحقق من أن jsonResponse ليس فارغًا وهو من النوع المتوقع
-          setState(() {
-            orderDetails = jsonResponse.cast<String,
-                dynamic>(); // تحويل النوع إلى Map<String, dynamic>
-          });
-          print('Order details: $orderDetails');
-        } else {
-          print('Invalid response or empty data');
-        }
-      } else {
-        print('Failed to load order details');
-      }
-    } catch (error) {
-      print('Error fetching order details: $error');
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -131,8 +52,8 @@ class _OrderScreenState extends State<OrderScreen> {
                       title: Text('Order #${orders[index]['id']}'),
                       subtitle: Text('Status: ${orders[index]['status']}'),
                       trailing: Text('Total: ${orders[index]['total']}'),
-                      onTap: () {
-                        viewOrderDetails(orders[index]['id']);
+                      onTap: () async {
+                        await viewOrderDetails(orders[index]['id']);
                         showModalBottomSheet(
                           context: context,
                           builder: (BuildContext context) {
@@ -146,20 +67,23 @@ class _OrderScreenState extends State<OrderScreen> {
                                   Text('Status: ${orderDetails['status']}'),
                                   Text('Total: ${orderDetails['total']}'),
                                   Text('Items:'),
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount:
-                                        orderDetails['order_details'].length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return ListTile(
-                                        title: Text(
-                                            '${orderDetails['order_details'][index]['product_id']}'),
-                                        subtitle: Text(
-                                            'Quantity: ${orderDetails['order_details'][index]['quantity']}'),
-                                      );
-                                    },
-                                  ),
+                                  orderDetails['order_details'] != null
+                                      ? ListView.builder(
+                                          shrinkWrap: true,
+                                          itemCount:
+                                              orderDetails['order_details']
+                                                  .length,
+                                          itemBuilder: (BuildContext context,
+                                              int index) {
+                                            return ListTile(
+                                              title: Text(
+                                                  'Product ID: ${orderDetails['order_details'][index]['product_id']}'),
+                                              subtitle: Text(
+                                                  'Quantity: ${orderDetails['order_details'][index]['quantity']}'),
+                                            );
+                                          },
+                                        )
+                                      : Text('No items found'),
                                 ],
                               ),
                             );
@@ -173,5 +97,89 @@ class _OrderScreenState extends State<OrderScreen> {
                   child: Text('No orders found'),
                 ),
     );
+  }
+
+  Future<void> getOrders() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    String url = API_URL + 'orders/my/timeline';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    print('Token: $token');
+
+    if (token == null) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Token is null');
+      return;
+    }
+
+    try {
+      var response = await http.get(Uri.parse(url), headers: {
+        'Authorization': 'Bearer $token',
+      });
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        setState(() {
+          isLoading = false;
+          orders = jsonResponse['orders'] ?? [];
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        print('Failed to load orders');
+      }
+    } catch (error) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error fetching orders: $error');
+    }
+  }
+
+  Future<void> viewOrderDetails(int orderId) async {
+    String url = API_URL + 'orders/show/$orderId';
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token == null) {
+      print('Token is null');
+      return;
+    }
+
+    try {
+      var response = await http.get(Uri.parse(url), headers: {
+        'Authorization': 'Bearer $token',
+      });
+
+      print('Order details response status: ${response.statusCode}');
+      print('Order details response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        var jsonResponse = jsonDecode(response.body);
+        if (jsonResponse != null &&
+            jsonResponse is Map &&
+            jsonResponse.isNotEmpty) {
+          setState(() {
+            orderDetails = jsonResponse.cast<String, dynamic>();
+          });
+          print('Order details: $orderDetails');
+        } else {
+          print('Invalid response or empty data');
+        }
+      } else {
+        print('Failed to load order details');
+      }
+    } catch (error) {
+      print('Error fetching order details: $error');
+    }
   }
 }

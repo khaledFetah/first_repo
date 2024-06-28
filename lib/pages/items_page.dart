@@ -441,10 +441,11 @@ class _ItemsPageState extends State<ItemsPage> {
   }
 
   Future<Response> createOrder(
-      int userId,
-      List<Map<String, dynamic>> orderItems,
-      double totalPrice,
-      String deliveryDate) async {
+    int userId,
+    List<Map<String, dynamic>> orderItems,
+    double totalPrice,
+    String deliveryDate,
+  ) async {
     setState(() {
       isLoading = true;
     });
@@ -452,14 +453,19 @@ class _ItemsPageState extends State<ItemsPage> {
     String url = API_URL + 'orders/store';
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String token = prefs.getString('token')!;
+    String? token = prefs.getString('token');
+    if (token == null) {
+      setState(() {
+        isLoading = false;
+      });
+      return Response('Token not found', 400);
+    }
 
     var formattedOrderItems = orderItems.map((item) {
       return {
         'product_id': item['product_id'],
-        'quantity': itemCount,
-        'price': item['price']
+        'quantity': item['quantity'],
+        'price': item['price'],
       };
     }).toList();
 
@@ -473,18 +479,19 @@ class _ItemsPageState extends State<ItemsPage> {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token'
+          'Authorization': 'Bearer $token',
         },
         body: json.encode(orderData));
 
     setState(() {
       isLoading = false;
-      formattedOrderItems.forEach((item) {
-        print('Product ID: ${item['product_id']}');
-        print('Quantity: ${item['quantity']}');
-        print('Price: ${item['price']}');
-      });
     });
+
+    if (response.statusCode == 201) {
+      print('Order created successfully');
+    } else {
+      print('Failed to create order: ${response.body}');
+    }
 
     return response;
   }
