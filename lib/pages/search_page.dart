@@ -35,133 +35,137 @@ class _SearchPageState extends State<SearchPage> {
         title: Text('Search Results'),
       ),
       body: Center(
-        child: searchResults.isEmpty
-            ? Text('No results found!')
-            : ListView.builder(
-                itemCount: searchResults.length,
-                itemBuilder: (context, index) {
-                  final product = searchResults[index];
-                  return GestureDetector(
-                    onTap: () {
-                      print("go to items page");
-                      print(products[index]['id']);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ItemsPage(currentAddress: product),
+        child: isLoading
+            ? CircularProgressIndicator()
+            : searchResults.isEmpty
+                ? Text('No results found!')
+                : ListView.builder(
+                    itemCount: searchResults.length,
+                    itemBuilder: (context, index) {
+                      final product = searchResults[index];
+                      return GestureDetector(
+                        onTap: () {
+                          print("go to items page");
+                          print(products[index]['id']);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ItemsPage(currentAddress: product),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 10),
+                          child: Container(
+                            width: 380,
+                            height: 150,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 3,
+                                  blurRadius: 10,
+                                  offset: Offset(0, 3),
+                                )
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 2, horizontal: 2),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  // Product Image
+                                  Image.network(
+                                    product['image'],
+                                    width: 150,
+                                    height: 150,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  // Product Details
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        // Product Name
+                                        Text(
+                                          product['name'],
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        // Product Description
+                                        Text(
+                                          product['description'],
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        // Rating
+                                        RatingBar.builder(
+                                          initialRating: 4,
+                                          minRating: 1,
+                                          direction: Axis.horizontal,
+                                          itemCount: 5,
+                                          itemSize: 18,
+                                          itemPadding: EdgeInsets.symmetric(
+                                              horizontal: 4),
+                                          itemBuilder: (context, index) => Icon(
+                                            Icons.star,
+                                            color: Colors.red,
+                                          ),
+                                          onRatingUpdate: (index) {},
+                                        ),
+                                        // Product Price
+                                        Text(
+                                          "\$${product['price']}",
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // Icons
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        // Delete From Favorites
+
+                                        // Cart Icon
+                                        Icon(
+                                          CupertinoIcons.cart,
+                                          color: Colors.red,
+                                          size: 26,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       );
                     },
-                    child: Padding(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                      child: Container(
-                        width: 380,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 3,
-                              blurRadius: 10,
-                              offset: Offset(0, 3),
-                            )
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 2, horizontal: 2),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // Product Image
-                              Image.network(
-                                product['image'],
-                                width: 150,
-                                height: 150,
-                                fit: BoxFit.cover,
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              // Product Details
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    // Product Name
-                                    Text(
-                                      product['name'],
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    // Product Description
-                                    Text(
-                                      product['description'],
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    // Rating
-                                    RatingBar.builder(
-                                      initialRating: 4,
-                                      minRating: 1,
-                                      direction: Axis.horizontal,
-                                      itemCount: 5,
-                                      itemSize: 18,
-                                      itemPadding:
-                                          EdgeInsets.symmetric(horizontal: 4),
-                                      itemBuilder: (context, index) => Icon(
-                                        Icons.star,
-                                        color: Colors.red,
-                                      ),
-                                      onRatingUpdate: (index) {},
-                                    ),
-                                    // Product Price
-                                    Text(
-                                      "\$${product['price']}",
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // Icons
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    // Delete From Favorites
-
-                                    // Cart Icon
-                                    Icon(
-                                      CupertinoIcons.cart,
-                                      color: Colors.red,
-                                      size: 26,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                  ),
       ),
     );
   }
@@ -183,15 +187,16 @@ class _SearchPageState extends State<SearchPage> {
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
       setState(() {
-        isLoading = false;
         searchResults = jsonResponse;
       });
     } else {
       setState(() {
-        isLoading = false;
         searchResults = [];
       });
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   // see every products
@@ -211,13 +216,13 @@ class _SearchPageState extends State<SearchPage> {
     if (resposne.statusCode == 200) {
       var jsonResponse = jsonDecode(resposne.body);
       setState(() {
-        isLoading = false;
         products = jsonResponse['products'];
       });
     } else {
-      setState(() {
-        isLoading = false;
-      });
+      // handle error
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 }

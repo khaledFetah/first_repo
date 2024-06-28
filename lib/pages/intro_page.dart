@@ -23,10 +23,10 @@ class IntroPage extends StatelessWidget {
 
             // title
             const Text(
-              "Minimal Shop",
+              "Khaled Online Store",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 20,
+                fontSize: 24,
               ),
             ),
             const SizedBox(height: 25),
@@ -35,7 +35,8 @@ class IntroPage extends StatelessWidget {
             Text(
               "Premium Quality Products",
               style: TextStyle(
-                color: Colors.red,
+                color: Colors.grey[800],
+                fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 25),
@@ -47,7 +48,7 @@ class IntroPage extends StatelessWidget {
                 },
                 child: Icon(
                   Icons.arrow_forward,
-                  color: Colors.white,
+                  color: Colors.red,
                 )),
           ],
         ),
